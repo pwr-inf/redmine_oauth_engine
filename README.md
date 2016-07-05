@@ -1,6 +1,6 @@
-## redmine_oauth_dataporten
+# redmine_oauth_dataporten
 
-(This repository is made from https://github.com/twinslash/redmine_omniauth_google)
+## (This repository is made from https://github.com/twinslash/redmine_omniauth_google)
 
 This plugin is used to authenticate Redmine users using Dataportens's OAuth2 provider.
 
