@@ -82,7 +82,7 @@ class RedmineOauthController < AccountController
 
   def oauth_client
     @client ||= OAuth2::Client.new(settings[:client_id], settings[:client_secret],
-      :site => 'https://sso.datascience.pl',
+      :site => 'https://sso.datasciencegroup.pl',
       :authorize_url => '/oauth/authorize',
       :token_url => '/oauth/token')
   end
