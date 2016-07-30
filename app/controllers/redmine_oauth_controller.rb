@@ -23,9 +23,12 @@ class RedmineOauthController < AccountController
       redirect_to signin_path
     else
       token = oauth_client.auth_code.get_token(params[:code], :redirect_uri => oauth_engine_callback_url, :headers => { 'Authorization' => authorization(settings[:client_id], settings[:client_secret])})
-      result = token.get('https://sso.datasciencegroup.pl/user')
+      result = token.get('https://sso.datasciencegroup.pl/user', :params => {'access_token' => token.token })
+#     logger.error("chuj")
+#     logger.error(token.token)
       info = JSON.parse(result.body)
-      if info
+#     logger.error(info)
+      if info and info["authenticated"]
         try_to_login info
       else
         flash[:error] = l(:notice_unable_to_obtain_engine_credentials)
@@ -37,11 +40,12 @@ class RedmineOauthController < AccountController
   def try_to_login info
    params[:back_url] = session[:back_url]
    session.delete(:back_url)
-   user = User.joins(:email_addresses).where(:email_addresses => { :address => info["user"]["email"] }).first_or_create
-    if user.new_record?
+   user = User.find_by_login(info["principal"]["username"]) 
+   if not user
       # Self-registration off
-      redirect_to(home_url) && return unless Setting.self_registration?
+      # redirect_to(home_url) && return unless Setting.self_registration?
       # Create on the fly
+      user = User.new
       user.firstname = info["principal"]["name"]
       user.lastname  = info["principal"]["surname"] 
       user.mail = info["principal"]["email"]
@@ -50,20 +54,20 @@ class RedmineOauthController < AccountController
       user.random_password
       user.register
 
-      case Setting.self_registration
-      when '1'
-        register_by_email_activation(user) do
-          onthefly_creation_failed(user)
-        end
-      when '3'
+#     case Setting.self_registration
+#     when '1'
+#       register_by_email_activation(user) do
+#         onthefly_creation_failed(user)
+#       end
+#     when '3'
         register_automatically(user) do
           onthefly_creation_failed(user)
         end
-      else
-        register_manually_by_administrator(user) do
-          onthefly_creation_failed(user)
-        end
-      end
+#     else
+#       register_manually_by_administrator(user) do
+#         onthefly_creation_failed(user)
+#       end
+#     end
     else
       # Existing record
       if user.active?
