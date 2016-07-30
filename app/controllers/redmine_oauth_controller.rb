@@ -15,6 +15,7 @@ class RedmineOauthController < AccountController
 
   def authorization(client_id, client_secret)
     'Basic ' + Base64.encode64(client_id + ':' + client_secret).gsub("\n", '')
+  end
 
   def oauth_engine_callback
     if params[:error]
