@@ -21,7 +21,7 @@ class RedmineOauthController < AccountController
       flash[:error] = l(:notice_access_denied)
       redirect_to signin_path
     else
-      token = oauth_client.auth_code.get_token(params[:code], :redirect_uri => oauth_engine_callback_url, :headers => { 'Authorization' => authorization(settings[:client_id], settings[:client_secret]))
+      token = oauth_client.auth_code.get_token(params[:code], :redirect_uri => oauth_engine_callback_url, :headers => { 'Authorization' => authorization(settings[:client_id], settings[:client_secret])})
       result = token.get('https://sso.datasciencegroup.pl/user')
       info = JSON.parse(result.body)
       if info
